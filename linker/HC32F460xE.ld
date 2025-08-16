@@ -16,10 +16,10 @@ __OTP_LOCK_SIZE  = 4;
 MEMORY
 {
     /* 主FLASH，用于程序代码和只读数据，限制32KB */
-    FLASH       (rx)  : ORIGIN = 0x00000000, LENGTH = 32K
+    FLASH       (rx)  : ORIGIN = 0x00000000, LENGTH = 480K
 
     /* 后续FLASH区域，可放置数组等固定数据 */
-    FLASH_ARRAY (rx)  : ORIGIN = 0x00008000, LENGTH = 480K
+    FLASH_ARRAY (rx)  : ORIGIN = 0x00008000, LENGTH = 32K
 
     /* OTP 数据段 */
     OTP_DATA    (rx)  : ORIGIN = __OTP_DATA_START, LENGTH = __OTP_DATA_SIZE
@@ -64,6 +64,17 @@ SECTIONS
         *(.eh_frame)
         KEEP(*(.init))
         KEEP(*(.fini))
+        /* ------------------ Cherry shell 命令表 ------------------ */
+            . = ALIGN(4);
+            __fsymtab_start = .;
+            KEEP(*(FSymTab))
+            __fsymtab_end = .;
+
+            /* ------------------ Cherry shell 变量表 ------------------ */
+            . = ALIGN(4);
+            __vsymtab_start = .;
+            KEEP(*(VSymTab))
+            __vsymtab_end = .;
         . = ALIGN(4);
     } >FLASH
 

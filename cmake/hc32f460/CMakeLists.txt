@@ -23,21 +23,37 @@ set(HC_Include_Dirs
         ${CMAKE_SOURCE_DIR}/Drivers/hc32_ll_driver/inc
         ${CMAKE_SOURCE_DIR}/Core/board
         # 组件依赖
+        ${CMAKE_SOURCE_DIR}/Core/components/config
+        ${CMAKE_SOURCE_DIR}/Core/components/port
         ${CMAKE_SOURCE_DIR}/Core/components/segger_rtt/SEGGER_RTT_V768c/RTT
-        ${CMAKE_SOURCE_DIR}/Core/components/usb_app
+        ${CMAKE_SOURCE_DIR}/Core/components/cherrySH/CherrySH
+        ${CMAKE_SOURCE_DIR}/Core/components/cherrySH/CherrySH/cherryrl
 )
 
 # ========================
 # 自动查找所有源文件
 # ========================
+# 先获取其他驱动源文件
 file(GLOB HC32_Drivers_Src
         ${CMAKE_SOURCE_DIR}/Core/board/*.c
         ${CMAKE_SOURCE_DIR}/Drivers/cmsis/Device/HDSC/hc32f4xx/Source/*.c
         ${CMAKE_SOURCE_DIR}/Drivers/hc32_ll_driver/src/*.c
         ${CMAKE_SOURCE_DIR}/Core/applications/*.c
-        # 组件依赖
+        ${CMAKE_SOURCE_DIR}/Core/components/config/*.c
+        ${CMAKE_SOURCE_DIR}/Core/components/port/*.c
         ${CMAKE_SOURCE_DIR}/Core/components/segger_rtt/SEGGER_RTT_V768c/RTT/*.c
+)
 
+# 单独获取 CherrySH 源文件
+file(GLOB CHERRYSH_SRC
+        ${CMAKE_SOURCE_DIR}/Core/components/cherrySH/CherrySH/*.c
+        ${CMAKE_SOURCE_DIR}/Core/components/cherrySH/CherrySH/builtin/*.c
+        ${CMAKE_SOURCE_DIR}/Core/components/cherrySH/CherrySH/cherryrl/*.c
+)
+
+# 对 CherrySH 文件单独屏蔽警告
+set_source_files_properties(${CHERRYSH_SRC} PROPERTIES
+        COMPILE_FLAGS "-Wno-pedantic -Wno-sign-compare -Wno-unused-function"
 )
 
 # 排除特定文件
@@ -73,7 +89,7 @@ target_compile_definitions(hc32f460 INTERFACE ${HC_Defines_Syms})
 # Create HC32_Drivers static library
 # ========================
 add_library(HC32_Drivers OBJECT)
-target_sources(HC32_Drivers PRIVATE ${HC32_Drivers_Src})
+target_sources(HC32_Drivers PRIVATE ${HC32_Drivers_Src} ${CHERRYSH_SRC})
 target_link_libraries(HC32_Drivers PUBLIC hc32f460)
 
 # ========================

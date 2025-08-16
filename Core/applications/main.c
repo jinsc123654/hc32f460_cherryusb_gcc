@@ -3,6 +3,11 @@
 
 #define LL_PERIPH_SEL (LL_PERIPH_GPIO | LL_PERIPH_FCG | LL_PERIPH_PWC_CLK_RMU | LL_PERIPH_EFM | LL_PERIPH_SRAM)
 
+
+int shell_init(void);
+int shell_main(void);
+
+
 int usb_bsp_init(void);
 void cdc_acm_init(uint8_t busid, uintptr_t reg_base);
 void cdc_acm_data_send_with_dtr_test(uint8_t busid);
@@ -18,9 +23,11 @@ int main(void)
     usb_bsp_init();
 #endif
     cdc_acm_init(0, CM_USBFS_BASE);
+    shell_init();
     while (1)
     {
         cdc_acm_data_send_with_dtr_test(0);
+        shell_main();
     }
     return 0;
 }
